@@ -1,0 +1,59 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav') %>
+
+<main class="flex-1 max-w-3xl mx-auto px-4 sm:px-6 py-14">
+  <h1 class="text-3xl font-extrabold mb-2">Refund Policy</h1>
+  <p class="text-gray-500 text-sm mb-10">Last updated: <%= new Date().toISOString().slice(0,10) %> &middot; Placeholder template &mdash; adjust to match how your upstream provider actually handles refunds/refills before you go live.</p>
+
+  <div class="space-y-8 text-gray-700 text-sm leading-relaxed">
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">1. Wallet top-ups</h2>
+      <p>Wallet top-ups are reviewed manually by our team before the balance is credited. If a payment
+        reference cannot be verified, we'll contact you before rejecting the request. Verified top-ups
+        are credited to your wallet balance and are not cash-refundable except as described below.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">2. Orders that haven't started processing</h2>
+      <p>An order can be cancelled for a full wallet credit if it has not yet started processing with our
+        upstream provider. Contact support with your order ID as soon as possible.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">3. Orders that fail or under-deliver</h2>
+      <p>If an order fails outright, you'll receive a full wallet credit. If an order partially delivers
+        (fewer units than ordered) and cannot be completed, you'll receive a wallet credit for the
+        undelivered portion.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">4. Drops / refill window</h2>
+      <p>Some services include a refill guarantee from our upstream provider for a limited window after
+        delivery (shown on the service, where applicable). Outside that window, or for services with no
+        refill guarantee, drops in followers/likes/views are not refundable &mdash; this is a known
+        characteristic of these services and outside our control.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">5. Not eligible for refund</h2>
+      <ul class="list-disc list-inside space-y-1">
+        <li>Orders placed on the wrong link/username due to your own input error, once processing has started.</li>
+        <li>Private or deleted accounts/posts that block delivery after the order has started.</li>
+        <li>Account actions taken by Instagram (removal of followers, suspensions, restrictions).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">6. How refunds are issued</h2>
+      <p>Approved refunds are credited back to your wallet balance by default. Cash refunds to your
+        original payment method may be offered at our discretion for unused top-ups.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">7. Contact</h2>
+      <p>To request a cancellation or refund, use the <a href="/contact" class="text-brand-700 underline">contact page</a> with your order ID.</p>
+    </section>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

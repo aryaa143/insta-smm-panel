@@ -1,0 +1,27 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav') %>
+
+<main class="flex-1 max-w-3xl mx-auto px-4 sm:px-6 py-14">
+  <h1 class="text-3xl font-extrabold mb-8">Frequently asked questions</h1>
+
+  <div class="space-y-6">
+    <% const faqs = [
+      ['Is this safe for my Instagram account?', "We deliver what you order, but buying engagement generally conflicts with Instagram's own Terms of Use, and Instagram can act on that at their discretion (removing engagement, limiting reach, or restricting accounts). Please read our Terms of Service before ordering."],
+      ['How fast do orders start?', "Most orders begin processing shortly after payment, but timing depends on our upstream provider and the specific service - check your order status in the dashboard for real-time updates."],
+      ['Do you need my Instagram password?', "No. We only ever need the public link or username for the content you want to promote. Never share your password with any SMM service - including us."],
+      ['Can I cancel an order?', "Yes, if it hasn't started processing yet. See our Refund Policy for full details."],
+      ['How do I add funds?', "From your dashboard, submit a top-up request with your payment reference. Our team verifies and credits it to your wallet manually."],
+      ["What if my order doesn't complete?", "Contact support with your order ID. Failed or under-delivered orders are credited back to your wallet per our Refund Policy."],
+    ]; %>
+    <% faqs.forEach(function(f) { %>
+      <div class="border border-gray-100 rounded-xl p-5 bg-white">
+        <h3 class="font-bold text-gray-900 mb-1"><%= f[0] %></h3>
+        <p class="text-gray-600 text-sm"><%= f[1] %></p>
+      </div>
+    <% }); %>
+  </div>
+
+  <p class="text-sm text-gray-500 mt-10">Still have questions? <a href="/contact" class="text-brand-700 underline font-semibold">Contact us</a>.</p>
+</main>
+
+<%- include('../partials/footer') %>

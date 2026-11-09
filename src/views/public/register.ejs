@@ -1,0 +1,55 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav') %>
+
+<main class="flex-1 flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md bg-white border border-gray-100 rounded-2xl shadow-sm p-8">
+    <h1 class="text-2xl font-extrabold mb-1">Create your account</h1>
+    <p class="text-gray-500 text-sm mb-6">It's free to sign up. You only pay when you order.</p>
+
+    <% if (errors && errors.length) { %>
+      <div class="mb-5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
+        <ul class="list-disc list-inside space-y-0.5">
+          <% errors.forEach(function(e) { %><li><%= e.msg %></li><% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form action="/register" method="POST" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Full name</label>
+        <input name="name" value="<%= old.name || '' %>" required
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Email</label>
+        <input type="email" name="email" value="<%= old.email || '' %>" required
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Password</label>
+        <input type="password" name="password" minlength="8" required
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
+        <p class="text-xs text-gray-400 mt-1">At least 8 characters.</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Confirm password</label>
+        <input type="password" name="confirmPassword" minlength="8" required
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
+      </div>
+
+      <label class="flex items-start gap-2 text-xs text-gray-500">
+        <input type="checkbox" required class="mt-0.5" />
+        <span>I agree to the <a href="/terms" class="text-brand-700 underline" target="_blank">Terms of Service</a>
+          and <a href="/privacy" class="text-brand-700 underline" target="_blank">Privacy Policy</a>.</span>
+      </label>
+
+      <button class="w-full py-2.5 rounded-lg brand-gradient text-white font-semibold hover:opacity-90">Create account</button>
+    </form>
+
+    <p class="text-sm text-gray-500 mt-6 text-center">
+      Already have an account? <a href="/login" class="text-brand-700 font-semibold hover:underline">Log in</a>
+    </p>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,37 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav') %>
+
+<main class="flex-1 flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md bg-white border border-gray-100 rounded-2xl shadow-sm p-8">
+    <h1 class="text-2xl font-extrabold mb-1">Welcome back</h1>
+    <p class="text-gray-500 text-sm mb-6">Log in to manage your orders and wallet.</p>
+
+    <% if (errors && errors.length) { %>
+      <div class="mb-5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
+        <ul class="list-disc list-inside space-y-0.5">
+          <% errors.forEach(function(e) { %><li><%= e.msg %></li><% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form action="/login" method="POST" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Email</label>
+        <input type="email" name="email" value="<%= old.email || '' %>" required
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Password</label>
+        <input type="password" name="password" required
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
+      </div>
+      <button class="w-full py-2.5 rounded-lg brand-gradient text-white font-semibold hover:opacity-90">Log in</button>
+    </form>
+
+    <p class="text-sm text-gray-500 mt-6 text-center">
+      Don't have an account? <a href="/register" class="text-brand-700 font-semibold hover:underline">Sign up</a>
+    </p>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

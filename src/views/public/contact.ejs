@@ -1,0 +1,19 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav') %>
+
+<main class="flex-1 max-w-xl mx-auto px-4 sm:px-6 py-14 text-center">
+  <h1 class="text-3xl font-extrabold mb-3">Contact support</h1>
+  <p class="text-gray-600 mb-8">
+    Have a question about an order, your wallet, or these Terms? Reach out and we'll get back to you.
+  </p>
+  <div class="bg-white border border-gray-100 rounded-xl p-8">
+    <p class="text-sm text-gray-500 mb-1">Email</p>
+    <p class="text-lg font-semibold text-brand-700"><%= site.supportEmail || 'support@example.com' %></p>
+    <p class="text-xs text-gray-400 mt-4">
+      Replace this with your real support email/live-chat widget in
+      <code class="bg-gray-100 px-1 rounded">src/views/public/contact.ejs</code>.
+    </p>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

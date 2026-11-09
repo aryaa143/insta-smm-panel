@@ -1,0 +1,40 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav') %>
+<%- include('../partials/dashboard_shell_open', { active }) %>
+
+  <h1 class="text-2xl font-extrabold mb-6">Profile</h1>
+
+  <%- include('../partials/flash') %>
+
+  <div class="grid lg:grid-cols-2 gap-6">
+    <div class="bg-white border border-gray-100 rounded-xl p-6">
+      <h2 class="font-bold mb-4">Account details</h2>
+      <dl class="text-sm space-y-2">
+        <div class="flex justify-between"><dt class="text-gray-500">Name</dt><dd class="font-medium"><%= currentUser.name %></dd></div>
+        <div class="flex justify-between"><dt class="text-gray-500">Email</dt><dd class="font-medium"><%= currentUser.email %></dd></div>
+        <div class="flex justify-between"><dt class="text-gray-500">Wallet balance</dt><dd class="font-medium"><%= site.currency %><%= currentUser.wallet_balance.toFixed(2) %></dd></div>
+        <div class="flex justify-between"><dt class="text-gray-500">Member since</dt><dd class="font-medium"><%= currentUser.created_at %></dd></div>
+      </dl>
+    </div>
+
+    <div class="bg-white border border-gray-100 rounded-xl p-6">
+      <h2 class="font-bold mb-4">Change password</h2>
+      <% if (errors && errors.length) { %>
+        <div class="mb-4 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
+          <% errors.forEach(function(e) { %><p><%= e.msg %></p><% }); %>
+        </div>
+      <% } %>
+      <form action="/dashboard/profile/password" method="POST" class="space-y-3">
+        <input type="password" name="currentPassword" placeholder="Current password" required
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+        <input type="password" name="newPassword" placeholder="New password" minlength="8" required
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+        <input type="password" name="confirmPassword" placeholder="Confirm new password" minlength="8" required
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" />
+        <button class="w-full py-2.5 rounded-lg brand-gradient text-white font-semibold hover:opacity-90">Update password</button>
+      </form>
+    </div>
+  </div>
+
+<%- include('../partials/dashboard_shell_close') %>
+<%- include('../partials/footer') %>

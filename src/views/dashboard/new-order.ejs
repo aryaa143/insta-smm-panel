@@ -1,0 +1,102 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav') %>
+<%- include('../partials/dashboard_shell_open', { active }) %>
+
+  <h1 class="text-2xl font-extrabold mb-1">Place a new order</h1>
+  <p class="text-gray-500 mb-6">Wallet balance: <strong><%= site.currency %><%= currentUser.wallet_balance.toFixed(2) %></strong></p>
+
+  <% if (errors && errors.length) { %>
+    <div class="mb-5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
+      <% errors.forEach(function(e) { %><p><%= e.msg %></p><% }); %>
+    </div>
+  <% } %>
+
+  <% const allServices = Object.values(grouped).flat(); %>
+  <% if (allServices.length === 0) { %>
+    <div class="bg-white border border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-500">
+      No services are available to order yet. Please check back soon.
+    </div>
+  <% } else { %>
+  <form action="/dashboard/order/new" method="POST" class="bg-white border border-gray-100 rounded-xl p-6 max-w-xl space-y-5" id="order-form">
+    <div>
+      <label class="block text-sm font-medium mb-1">Service</label>
+      <select name="serviceId" id="serviceId" required
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+        <% Object.keys(grouped).forEach(function(cat) { %>
+          <optgroup label="<%= cat %>">
+            <% grouped[cat].forEach(function(s) { %>
+              <option value="<%= s.id %>"
+                data-rate="<%= s.rate_per_1000 %>" data-min="<%= s.min_quantity %>" data-max="<%= s.max_quantity %>"
+                <%= (preselect && preselect === s.id) ? 'selected' : '' %>>
+                <%= s.name %> &mdash; <%= site.currency %><%= s.rate_per_1000.toFixed(2) %>/1000
+              </option>
+            <% }); %>
+          </optgroup>
+        <% }); %>
+      </select>
+      <p class="text-xs text-gray-400 mt-1" id="minmax-hint"></p>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Instagram link</label>
+      <input type="url" name="link" required placeholder="https://instagram.com/p/..."
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
+      <p class="text-xs text-gray-400 mt-1">Public post, reel or profile link. We never ask for your password.</p>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Quantity</label>
+      <input type="number" name="quantity" id="quantity" required
+        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
+    </div>
+
+    <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
+      <span class="text-sm text-gray-600">Estimated charge</span>
+      <span class="text-lg font-extrabold" id="charge-preview"><%= site.currency %>0.00</span>
+    </div>
+
+    <button class="w-full py-2.5 rounded-lg brand-gradient text-white font-semibold hover:opacity-90">Place order</button>
+    <p class="text-xs text-gray-400 text-center">
+      By ordering you confirm you've read our <a href="/terms" class="underline" target="_blank">Terms of Service</a>.
+    </p>
+  </form>
+  <% } %>
+
+  <script>
+    (function () {
+      var select = document.getElementById('serviceId');
+      var qty = document.getElementById('quantity');
+      var preview = document.getElementById('charge-preview');
+      var hint = document.getElementById('minmax-hint');
+      var currency = <%- JSON.stringify(site.currency) %>;
+
+      function current() {
+        var opt = select.options[select.selectedIndex];
+        return opt ? { rate: parseFloat(opt.dataset.rate), min: parseInt(opt.dataset.min, 10), max: parseInt(opt.dataset.max, 10) } : null;
+      }
+
+      function refreshHint() {
+        var c = current();
+        if (!c) return;
+        hint.textContent = 'Min ' + c.min + ' / Max ' + c.max;
+        qty.min = c.min; qty.max = c.max;
+        if (!qty.value) qty.value = c.min;
+        refreshPreview();
+      }
+
+      function refreshPreview() {
+        var c = current();
+        if (!c) return;
+        var n = parseInt(qty.value, 10) || 0;
+        var charge = (c.rate / 1000) * n;
+        preview.textContent = currency + charge.toFixed(2);
+      }
+
+      select.addEventListener('change', refreshHint);
+      qty.addEventListener('input', refreshPreview);
+      refreshHint();
+    })();
+  </script>
+
+<%- include('../partials/dashboard_shell_close') %>
+<%- include('../partials/footer') %>

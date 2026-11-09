@@ -1,0 +1,10 @@
+<div class="flex-1 flex max-w-6xl mx-auto w-full">
+  <aside class="hidden sm:block w-56 shrink-0 border-r border-gray-100 p-4 space-y-1">
+    <% const dlink = (href, label, key) => `<a href="${href}" class="block px-3 py-2 rounded-lg text-sm font-medium ${active === key ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50'}">${label}</a>`; %>
+    <%- dlink('/dashboard', 'Overview', 'overview') %>
+    <%- dlink('/dashboard/order/new', 'New order', 'new-order') %>
+    <%- dlink('/dashboard/orders', 'My orders', 'orders') %>
+    <%- dlink('/dashboard/wallet', 'Wallet', 'wallet') %>
+    <%- dlink('/dashboard/profile', 'Profile', 'profile') %>
+  </aside>
+  <main class="flex-1 p-4 sm:p-8 min-w-0">

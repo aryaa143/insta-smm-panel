@@ -1,0 +1,15 @@
+<div class="flex-1 flex max-w-7xl mx-auto w-full">
+  <aside class="hidden sm:block w-56 shrink-0 bg-gray-900 text-gray-300 p-4 space-y-1 min-h-[calc(100vh-4rem)]">
+    <p class="text-xs uppercase tracking-wider text-gray-500 px-3 mb-2 mt-1">Admin panel</p>
+    <% const alink = (href, label, key) => `<a href="${href}" class="block px-3 py-2 rounded-lg text-sm font-medium ${active === key ? 'bg-brand-600 text-white' : 'hover:bg-gray-800 text-gray-300'}">${label}</a>`; %>
+    <%- alink('/admin', 'Dashboard', 'dashboard') %>
+    <%- alink('/admin/users', 'Users', 'users') %>
+    <%- alink('/admin/services', 'Services', 'services') %>
+    <%- alink('/admin/orders', 'Orders', 'orders') %>
+    <%- alink('/admin/fund-requests', 'Fund requests', 'fund-requests') %>
+    <%- alink('/admin/settings', 'Settings', 'settings') %>
+    <div class="border-t border-gray-800 mt-3 pt-3">
+      <%- alink('/dashboard', '← Back to site', '') %>
+    </div>
+  </aside>
+  <main class="flex-1 p-4 sm:p-8 min-w-0 bg-gray-50">

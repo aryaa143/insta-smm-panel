@@ -1,0 +1,99 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav') %>
+
+<main class="flex-1 max-w-3xl mx-auto px-4 sm:px-6 py-14">
+  <h1 class="text-3xl font-extrabold mb-2">Terms of Service</h1>
+  <p class="text-gray-500 text-sm mb-10">Last updated: <%= new Date().toISOString().slice(0,10) %> &middot; Placeholder template &mdash; have a lawyer review before you go live.</p>
+
+  <div class="space-y-8 text-gray-700 text-sm leading-relaxed">
+
+    <section class="rounded-xl bg-amber-50 border border-amber-200 p-5">
+      <h2 class="font-bold text-amber-900 mb-2">Please read this section first</h2>
+      <p class="text-amber-900">
+        <%= site.name %> sells social-media marketing (SMM) services: followers, likes, views, comments
+        and similar engagement for Instagram accounts and posts. These services are fulfilled through
+        third-party providers and are generally understood to conflict with
+        <a href="https://help.instagram.com/477434105621119" target="_blank" rel="noopener" class="underline">Instagram/Meta's own Terms of Use and Community Guidelines</a>,
+        which prohibit buying or selling fake engagement and using third-party apps to inflate metrics.
+        Using these services can lead to removed followers/likes, reduced reach, feature
+        restrictions, or account suspension by Instagram &mdash; entirely at Instagram's discretion and
+        outside our control. By creating an account and placing an order you confirm you understand
+        and accept this risk for yourself.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">1. Who we are / acceptance of terms</h2>
+      <p>These Terms of Service ("Terms") govern your use of <%= site.name %> (the "Service"). By registering an
+        account or placing an order you agree to these Terms. If you do not agree, do not use the Service.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">2. Eligibility</h2>
+      <p>You must be at least 18 years old, or the age of majority in your jurisdiction, and legally able to
+        enter into a binding contract to use the Service. You are responsible for the account(s) and
+        links you submit, and must only submit content/links you are authorised to promote.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">3. Orders, pricing &amp; wallet</h2>
+      <p>Prices are shown per 1,000 units and may change at any time; the price shown at the moment you
+        place an order is the price charged. Funds are held in an in-app wallet. Wallet top-ups are
+        reviewed manually and credited once confirmed &mdash; see the
+        <a href="/refund-policy" class="text-brand-700 underline">Refund Policy</a> for cancellation and
+        refund conditions.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">4. Acceptable use</h2>
+      <p>You may not use the Service to target: accounts or content you don't own or have permission to
+        promote; content that is illegal, promotes violence or hate, is sexually exploitative of minors,
+        infringes someone else's rights, or is otherwise prohibited by applicable law. We reserve the
+        right to refuse, cancel or refund any order that violates this section, and to suspend accounts
+        that abuse the Service.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">5. No guarantee against platform action</h2>
+      <p>We do not control Instagram/Meta's enforcement systems. We do not guarantee that delivered
+        engagement will remain on your account permanently, that your account will not be flagged,
+        limited or suspended, or that any specific algorithmic outcome (reach, follows, sales) will
+        result from using the Service.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">6. Limitation of liability</h2>
+      <p>The Service is provided "as is". To the maximum extent permitted by law, <%= site.name %> is not
+        liable for indirect, incidental or consequential damages, including loss of followers, account
+        suspension, lost business, or lost profits arising from use of the Service. Our total liability
+        for any claim is limited to the amount you paid for the order giving rise to the claim.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">7. Account suspension &amp; termination</h2>
+      <p>We may suspend or terminate accounts that violate these Terms, engage in fraud or chargebacks,
+        or abuse the Service. You may stop using the Service and close your account at any time by
+        contacting <a href="/contact" class="text-brand-700 underline">support</a>.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">8. Changes to these Terms</h2>
+      <p>We may update these Terms from time to time. Continued use of the Service after changes take
+        effect constitutes acceptance of the revised Terms.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">9. Governing law</h2>
+      <p>[Fill in: the governing law / jurisdiction for your business.] &mdash; replace this bracket with
+        your actual governing law clause once you've registered your business.</p>
+    </section>
+
+    <section>
+      <h2 class="font-bold text-gray-900 text-base mb-2">10. Contact</h2>
+      <p>Questions about these Terms? Reach us via the <a href="/contact" class="text-brand-700 underline">contact page</a>.</p>
+    </section>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

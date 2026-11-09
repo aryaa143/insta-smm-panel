@@ -1,0 +1,62 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav') %>
+<%- include('../partials/dashboard_shell_open', { active }) %>
+
+  <h1 class="text-2xl font-extrabold mb-1">My orders</h1>
+  <p class="text-gray-500 mb-6">Track the status of every order you've placed.</p>
+
+  <%- include('../partials/flash') %>
+
+  <% if (orders.length === 0) { %>
+    <div class="bg-white border border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-500">
+      No orders yet. <a href="/dashboard/order/new" class="text-brand-700 underline">Place your first order</a>.
+    </div>
+  <% } else { %>
+  <div class="bg-white border border-gray-100 rounded-xl overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-gray-500 text-left">
+        <tr>
+          <th class="px-4 py-3 font-semibold">ID</th>
+          <th class="px-4 py-3 font-semibold">Service</th>
+          <th class="px-4 py-3 font-semibold">Link</th>
+          <th class="px-4 py-3 font-semibold">Qty</th>
+          <th class="px-4 py-3 font-semibold">Charge</th>
+          <th class="px-4 py-3 font-semibold">Status</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% orders.forEach(function(o) { %>
+          <tr>
+            <td class="px-4 py-3 text-gray-500">#<%= o.id %></td>
+            <td class="px-4 py-3 font-medium"><%= o.service_name %></td>
+            <td class="px-4 py-3 max-w-[180px] truncate"><a href="<%= o.link %>" target="_blank" class="text-brand-700 hover:underline"><%= o.link %></a></td>
+            <td class="px-4 py-3"><%= o.quantity %></td>
+            <td class="px-4 py-3"><%= site.currency %><%= o.charge.toFixed(2) %></td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+                <%= o.status === 'completed' ? 'bg-green-100 text-green-700' :
+                    (o.status === 'failed' || o.status === 'canceled') ? 'bg-red-100 text-red-700' :
+                    'bg-amber-100 text-amber-700' %>">
+                <%= o.status %>
+              </span>
+              <% if (o.remains !== null && o.remains !== undefined) { %>
+                <div class="text-xs text-gray-400 mt-0.5"><%= o.remains %> remaining</div>
+              <% } %>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <% if (o.provider_order_id) { %>
+                <form action="/dashboard/orders/<%= o.id %>/refresh" method="POST">
+                  <button class="text-xs text-gray-500 hover:text-brand-700 font-semibold">Refresh</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+
+<%- include('../partials/dashboard_shell_close') %>
+<%- include('../partials/footer') %>

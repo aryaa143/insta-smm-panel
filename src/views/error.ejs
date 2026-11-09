@@ -1,0 +1,10 @@
+<%- include('partials/head', { title }) %>
+<%- include('partials/nav') %>
+<main class="flex-1 flex items-center justify-center px-4">
+  <div class="text-center max-w-md">
+    <h1 class="text-2xl font-bold mb-2"><%= title %></h1>
+    <p class="text-gray-600 mb-6"><%= message %></p>
+    <a href="/" class="px-5 py-2.5 rounded-lg brand-gradient text-white font-semibold">Go home</a>
+  </div>
+</main>
+<%- include('partials/footer') %>

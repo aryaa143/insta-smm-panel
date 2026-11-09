@@ -1,0 +1,36 @@
+  <footer class="bg-gray-900 text-gray-400 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+      <div class="col-span-2">
+        <div class="flex items-center gap-2 font-extrabold text-lg text-white mb-2">
+          <span class="w-7 h-7 rounded-lg brand-gradient flex items-center justify-center text-white text-xs">IG</span>
+          <%= site.name %>
+        </div>
+        <p class="max-w-sm">
+          Social media marketing services for Instagram creators and businesses.
+          Please read our <a href="/terms" class="underline hover:text-white">Terms of Service</a>
+          before ordering.
+        </p>
+      </div>
+      <div>
+        <p class="text-white font-semibold mb-2">Company</p>
+        <ul class="space-y-1">
+          <li><a href="/#services" class="hover:text-white">Services</a></li>
+          <li><a href="/faq" class="hover:text-white">FAQ</a></li>
+          <li><a href="/contact" class="hover:text-white">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-white font-semibold mb-2">Legal</p>
+        <ul class="space-y-1">
+          <li><a href="/terms" class="hover:text-white">Terms of Service</a></li>
+          <li><a href="/privacy" class="hover:text-white">Privacy Policy</a></li>
+          <li><a href="/refund-policy" class="hover:text-white">Refund Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 py-4 text-center text-xs text-gray-500">
+      &copy; <%= new Date().getFullYear() %> <%= site.name %>. Not affiliated with, endorsed by, or sponsored by Instagram or Meta.
+    </div>
+  </footer>
+</body>
+</html>

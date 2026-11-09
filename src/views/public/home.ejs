@@ -1,0 +1,130 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav') %>
+
+<main class="flex-1">
+
+  <!-- Hero -->
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 brand-gradient opacity-95"></div>
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-28 text-center text-white">
+      <p class="inline-block bg-white/15 border border-white/25 rounded-full px-4 py-1 text-xs font-semibold tracking-wide mb-5">
+        INSTAGRAM GROWTH &amp; SMM SERVICES
+      </p>
+      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight max-w-3xl mx-auto">
+        Grow your Instagram presence, the simple way
+      </h1>
+      <p class="mt-5 text-lg text-white/90 max-w-2xl mx-auto">
+        Order followers, likes, views and comments in minutes. Transparent pricing,
+        a live order dashboard, and real support &mdash; no guesswork.
+      </p>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <a href="/register" class="px-6 py-3 rounded-lg bg-white text-brand-700 font-bold hover:bg-gray-100">Create free account</a>
+        <a href="#services" class="px-6 py-3 rounded-lg border border-white/40 text-white font-semibold hover:bg-white/10">View services &amp; pricing</a>
+      </div>
+      <p class="mt-6 text-xs text-white/70 max-w-xl mx-auto">
+        Please read our <a href="/terms" class="underline">Terms of Service</a> before ordering &mdash;
+        engagement services can be against Instagram's own platform rules, and we want you
+        to make that call with full information.
+      </p>
+    </div>
+  </section>
+
+  <!-- Stats (real numbers from this panel's own database) -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 -mt-10 relative">
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 grid grid-cols-2 sm:grid-cols-3 divide-x divide-gray-100">
+      <div class="p-6 text-center">
+        <p class="text-2xl font-extrabold text-gray-900"><%= stats.users %></p>
+        <p class="text-sm text-gray-500 mt-1">Registered accounts</p>
+      </div>
+      <div class="p-6 text-center">
+        <p class="text-2xl font-extrabold text-gray-900"><%= stats.completedOrders %></p>
+        <p class="text-sm text-gray-500 mt-1">Orders completed</p>
+      </div>
+      <div class="p-6 text-center col-span-2 sm:col-span-1">
+        <p class="text-2xl font-extrabold text-gray-900">24/7</p>
+        <p class="text-sm text-gray-500 mt-1">Order dashboard access</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why us -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="p-6 rounded-xl border border-gray-100 bg-white">
+        <div class="w-10 h-10 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center font-bold mb-3">1</div>
+        <h3 class="font-bold text-lg mb-1">Transparent pricing</h3>
+        <p class="text-gray-600 text-sm">Every service shows its real rate, minimum and maximum order size up front. No hidden fees on top of your wallet balance.</p>
+      </div>
+      <div class="p-6 rounded-xl border border-gray-100 bg-white">
+        <div class="w-10 h-10 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center font-bold mb-3">2</div>
+        <h3 class="font-bold text-lg mb-1">Live order tracking</h3>
+        <p class="text-gray-600 text-sm">Every order gets a status (pending, processing, completed) in your dashboard, pulled straight from fulfillment &mdash; not a guess.</p>
+      </div>
+      <div class="p-6 rounded-xl border border-gray-100 bg-white">
+        <div class="w-10 h-10 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center font-bold mb-3">3</div>
+        <h3 class="font-bold text-lg mb-1">Real human support</h3>
+        <p class="text-gray-600 text-sm">Questions or issues with an order? Reach out any time from the <a href="/contact" class="text-brand-700 underline">contact page</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Services / Pricing -->
+  <section id="services" class="bg-white border-y border-gray-100">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+      <div class="text-center mb-10">
+        <h2 id="pricing" class="text-3xl font-extrabold">Services &amp; pricing</h2>
+        <p class="text-gray-600 mt-2">Prices are per 1,000 units. Create a free account to place an order.</p>
+      </div>
+
+      <% const categories = Object.keys(grouped); %>
+      <% if (categories.length === 0) { %>
+        <div class="text-center text-gray-500 py-12 border border-dashed border-gray-200 rounded-xl">
+          <p class="font-medium">No services are published yet.</p>
+          <p class="text-sm mt-1">Admin: go to <span class="font-mono">/admin/services</span> and sync + enable services from your provider.</p>
+        </div>
+      <% } %>
+
+      <% categories.forEach(function(cat) { %>
+        <div class="mb-10">
+          <h3 class="font-bold text-lg mb-3"><%= cat %></h3>
+          <div class="overflow-x-auto rounded-xl border border-gray-100">
+            <table class="w-full text-sm">
+              <thead class="bg-gray-50 text-gray-500 text-left">
+                <tr>
+                  <th class="px-4 py-3 font-semibold">Service</th>
+                  <th class="px-4 py-3 font-semibold">Rate / 1000</th>
+                  <th class="px-4 py-3 font-semibold">Min</th>
+                  <th class="px-4 py-3 font-semibold">Max</th>
+                  <th class="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <% grouped[cat].forEach(function(s) { %>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 font-medium"><%= s.name %></td>
+                    <td class="px-4 py-3"><%= site.currency %><%= s.rate_per_1000.toFixed(2) %></td>
+                    <td class="px-4 py-3 text-gray-500"><%= s.min_quantity %></td>
+                    <td class="px-4 py-3 text-gray-500"><%= s.max_quantity %></td>
+                    <td class="px-4 py-3 text-right">
+                      <a href="/dashboard/order/new?service=<%= s.id %>" class="text-brand-700 font-semibold hover:underline">Order &rarr;</a>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-16 text-center">
+    <h2 class="text-2xl sm:text-3xl font-extrabold mb-3">Ready to grow your account?</h2>
+    <p class="text-gray-600 mb-6">Sign up, add funds, and place your first order in minutes.</p>
+    <a href="/register" class="px-6 py-3 rounded-lg brand-gradient text-white font-bold hover:opacity-90 inline-block">Create free account</a>
+  </section>
+
+</main>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,57 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav') %>
+<%- include('../partials/admin_shell_open', { active }) %>
+
+  <h1 class="text-2xl font-extrabold mb-1">Users</h1>
+  <p class="text-gray-500 mb-6"><%= users.length %> registered account(s).</p>
+
+  <%- include('../partials/flash') %>
+
+  <div class="bg-white border border-gray-100 rounded-xl overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-gray-500 text-left">
+        <tr>
+          <th class="px-4 py-3 font-semibold">Name</th>
+          <th class="px-4 py-3 font-semibold">Email</th>
+          <th class="px-4 py-3 font-semibold">Role</th>
+          <th class="px-4 py-3 font-semibold">Wallet</th>
+          <th class="px-4 py-3 font-semibold">Status</th>
+          <th class="px-4 py-3 font-semibold">Joined</th>
+          <th class="px-4 py-3 font-semibold">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% users.forEach(function(u) { %>
+          <tr>
+            <td class="px-4 py-3 font-medium"><%= u.name %></td>
+            <td class="px-4 py-3 text-gray-500"><%= u.email %></td>
+            <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-xs font-semibold <%= u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600' %>"><%= u.role %></span></td>
+            <td class="px-4 py-3"><%= site.currency %><%= u.wallet_balance.toFixed(2) %></td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-0.5 rounded-full text-xs font-semibold <%= u.status === 'banned' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700' %>"><%= u.status %></span>
+            </td>
+            <td class="px-4 py-3 text-gray-500 whitespace-nowrap"><%= u.created_at %></td>
+            <td class="px-4 py-3">
+              <div class="flex flex-col gap-2 min-w-[220px]">
+                <form action="/admin/users/<%= u.id %>/wallet-adjust" method="POST" class="flex gap-1">
+                  <input name="amount" type="number" step="0.01" placeholder="+/- amount" class="w-28 rounded border border-gray-300 px-2 py-1 text-xs" required />
+                  <button class="px-2 py-1 rounded bg-gray-900 text-white text-xs font-semibold">Apply</button>
+                </form>
+                <% if (u.role !== 'admin') { %>
+                  <form action="/admin/users/<%= u.id %>/status" method="POST">
+                    <input type="hidden" name="status" value="<%= u.status === 'banned' ? 'active' : 'banned' %>" />
+                    <button class="text-xs font-semibold <%= u.status === 'banned' ? 'text-green-700' : 'text-red-600' %> hover:underline">
+                      <%= u.status === 'banned' ? 'Reactivate' : 'Suspend' %>
+                    </button>
+                  </form>
+                <% } %>
+              </div>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+<%- include('../partials/admin_shell_close') %>
+<%- include('../partials/footer') %>

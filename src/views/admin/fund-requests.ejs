@@ -1,0 +1,66 @@
+<%- include('../partials/head', { title }) %>
+<%- include('../partials/nav') %>
+<%- include('../partials/admin_shell_open', { active }) %>
+
+  <h1 class="text-2xl font-extrabold mb-1">Fund requests</h1>
+  <p class="text-gray-500 mb-6">Review manual wallet top-up requests from customers.</p>
+
+  <%- include('../partials/flash') %>
+
+  <% if (fundRequests.length === 0) { %>
+    <div class="bg-white border border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-500">No fund requests yet.</div>
+  <% } else { %>
+  <div class="bg-white border border-gray-100 rounded-xl overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-gray-500 text-left">
+        <tr>
+          <th class="px-4 py-3 font-semibold">User</th>
+          <th class="px-4 py-3 font-semibold">Amount</th>
+          <th class="px-4 py-3 font-semibold">Method</th>
+          <th class="px-4 py-3 font-semibold">Reference</th>
+          <th class="px-4 py-3 font-semibold">Status</th>
+          <th class="px-4 py-3 font-semibold">Requested</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% fundRequests.forEach(function(f) { %>
+          <tr>
+            <td class="px-4 py-3">
+              <div class="font-medium"><%= f.user_name %></div>
+              <div class="text-xs text-gray-400"><%= f.user_email %></div>
+            </td>
+            <td class="px-4 py-3 font-semibold"><%= site.currency %><%= f.amount.toFixed(2) %></td>
+            <td class="px-4 py-3 capitalize text-gray-500"><%= f.method.replace('_',' ') %></td>
+            <td class="px-4 py-3 text-gray-500"><%= f.reference || '—' %></td>
+            <td class="px-4 py-3">
+              <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+                <%= f.status === 'approved' ? 'bg-green-100 text-green-700' :
+                    f.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700' %>">
+                <%= f.status %>
+              </span>
+            </td>
+            <td class="px-4 py-3 text-gray-500 whitespace-nowrap"><%= f.created_at %></td>
+            <td class="px-4 py-3">
+              <% if (f.status === 'pending') { %>
+                <div class="flex gap-2">
+                  <form action="/admin/fund-requests/<%= f.id %>/approve" method="POST">
+                    <button class="px-2 py-1 rounded bg-green-600 text-white text-xs font-semibold">Approve</button>
+                  </form>
+                  <form action="/admin/fund-requests/<%= f.id %>/reject" method="POST">
+                    <button class="px-2 py-1 rounded bg-red-600 text-white text-xs font-semibold">Reject</button>
+                  </form>
+                </div>
+              <% } else { %>
+                <span class="text-xs text-gray-400">Reviewed</span>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+
+<%- include('../partials/admin_shell_close') %>
+<%- include('../partials/footer') %>
