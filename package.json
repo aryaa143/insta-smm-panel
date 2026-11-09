@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node src/server.js",
+    "start": "node src/config/initdb.js && node src/server.js",
     "dev": "node --watch src/server.js",
     "db:init": "node src/config/initdb.js"
   },
