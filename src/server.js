@@ -81,7 +81,13 @@ app.use((err, req, res, next) => {
     message: process.env.NODE_ENV === 'production' ? 'Please try again shortly.' : err.message,
   });
 });
-
+app.use((req, res, next)) => {
+  res.locals.site ={
+    name:"SMM Panel",
+    url:"https://insta-smm-panel.onrender.com"
+  };
+  next();
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`${process.env.APP_NAME || 'InstaBoost Panel'} running at http://localhost:${PORT}`);
