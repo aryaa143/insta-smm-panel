@@ -74,17 +74,17 @@ app.use((req, res) => {
 });
 
 // eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
+app.use((req, res, next,) => {
   console.error(err);
   res.status(500).render('error', {
     title: 'Something went wrong',
     message: process.env.NODE_ENV === 'production' ? 'Please try again shortly.' : err.message,
   });
 });
-app.use((req, res, next)) => {
-  res.locals.site ={
-    name:"SMM Panel",
-    url:"https://insta-smm-panel.onrender.com"
+app.use((req, res, next) => {
+  res.locals.site = {
+    name: "SMM Panel",
+    url: "https://insta-smm-panel.onrender.com"
   };
   next();
 });
