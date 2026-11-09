@@ -19,11 +19,11 @@ const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
 db.exec(schema);
 
 // --- seed admin account ---
-const adminEmail = (process.env.ADMIN_EMAIL || 'admin@example.com').toLowerCase();
+const adminEmail = (process.env.ADMIN_EMAIL || 'akashkushwaha14385@gmail.com').toLowerCase();
 const existingAdmin = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
 
 if (!existingAdmin) {
-  const passwordHash = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'change-this-password', 10);
+  const passwordHash = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'akashpriya21012024', 10);
   db.prepare(
     `INSERT INTO users (name, email, password_hash, role, wallet_balance, status)
      VALUES (?, ?, ?, 'admin', 0, 'active')`
