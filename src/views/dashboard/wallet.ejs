@@ -30,13 +30,12 @@
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
         </div>
         <button class="w-full py-2.5 rounded-lg brand-gradient text-white font-semibold hover:opacity-90">Submit top-up request</button>
-        <p class="text-xs text-gray-400">
-          No payment gateway is connected yet - top-ups are verified and credited manually by an admin.
-          Send payment using the details on the <a href="/contact" class="underline">contact page</a>, then submit this form with your reference.
-        </p>
-      </form>
-    </div>
-
+        <div class="text-center my-3">
+  <p class="mb-2 text-sm font-medium">Scan the QR code below to pay</p>
+  <img src="/img/qr.png" alt="UPI QR Code" style="max-width: 180px; height: auto;" class="mb-2 img-thumbnail mx-auto" />
+  <p class="mb-1 text-sm"><strong>UPI ID:</strong> <code>akashkushwaha14385@okhdfcbank</code></p>
+  <small class="text-muted">Payment karne ke baad UTR / Transaction ID daal kar Submit karein.</small>
+</div>
     <div class="bg-white border border-gray-100 rounded-xl">
       <div class="px-5 py-3 border-b border-gray-100 font-semibold text-sm">Your top-up requests</div>
       <% if (fundRequests.length === 0) { %>
