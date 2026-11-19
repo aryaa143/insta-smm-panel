@@ -22,6 +22,7 @@
     "express-validator": "^7.2.0",
     "helmet": "^7.1.0",
     "node-fetch": "^2.7.0",
+    "pg": "^8.23.1",
     "sqlite3": "^6.0.1"
   }
 }

@@ -18,23 +18,30 @@ function calcCharge(service, quantity) {
   return Math.round(raw * 100) / 100;
 }
 
-router.get('/', (req, res) => {
-  const orders = ordersModel.listForUser(req.session.userId).slice(0, 5);
-  const transactions = transactionsModel.listForUser(req.session.userId, 5);
-  res.render('dashboard/overview', { title: 'Dashboard', active: 'overview', orders, transactions });
+router.get('/', async (req, res) => {
+  const allOrders = await ordersModel.listForUser(req.session.userId);
+  const orders = allOrders.slice(0, 5);
+  const transactions = await transactionsModel.listForUser(req.session.userId, 5);
+  res.render('dashboard/overview', {
+    title: 'Dashboard',
+    active: 'overview',
+    orders,
+    transactions,
+  });
 });
 
-router.get('/order/new', (req, res) => {
-  const services = servicesModel.listActiveWithCategory();
+router.get('/order/new', async (req, res) => {
+  const services = await servicesModel.listActiveWithCategory();
+  // Group active services by category_name for the dropdown
   const grouped = {};
   for (const s of services) {
     const cat = s.category_name || 'Other';
-    grouped[cat] = grouped[cat] || [];
+    if (!grouped[cat]) grouped[cat] = [];
     grouped[cat].push(s);
   }
   const preselect = req.query.service ? parseInt(req.query.service, 10) : null;
   res.render('dashboard/new-order', {
-    title: 'New order',
+    title: 'New Order',
     active: 'new-order',
     grouped,
     preselect,
@@ -42,80 +49,104 @@ router.get('/order/new', (req, res) => {
   });
 });
 
-router.post('/order/new', (req, res) => {
-  const serviceId = parseInt(req.body.serviceId, 10);
+router.post('/order/new', async (req, res) => {
+  const serviceId = parseInt(req.body.service_id, 10);
   const link = (req.body.link || '').trim();
   const quantity = parseInt(req.body.quantity, 10);
 
-  const renderError = (msg) => {
-    const services = servicesModel.listActiveWithCategory();
-    const grouped = {};
-    for (const s of services) {
-      const cat = s.category_name || 'Other';
-      grouped[cat] = grouped[cat] || [];
-      grouped[cat].push(s);
-    }
-    return res.status(400).render('dashboard/new-order', {
-      title: 'New order',
+  const services = await servicesModel.listActiveWithCategory();
+  const grouped = {};
+  for (const s of services) {
+    const cat = s.category_name || 'Other';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(s);
+  }
+
+  const renderError = (msg) =>
+    res.status(400).render('dashboard/new-order', {
+      title: 'New Order',
       active: 'new-order',
       grouped,
       preselect: serviceId,
       errors: [{ msg }],
     });
-  };
 
-  const service = servicesModel.findById(serviceId);
-  if (!service || service.status !== 'active') return renderError('Please choose a valid service.');
-  if (!link || !/^https?:\/\//i.test(link)) return renderError('Please enter a valid link starting with http:// or https://.');
+  const service = await servicesModel.findById(serviceId);
+  if (!service || service.status !== 'active') {
+    return renderError('Please choose a valid active service.');
+  }
+  if (!link || !/^https?:\/\/.+/i.test(link)) {
+    return renderError('Please enter a valid link starting with http:// or https://.');
+  }
   if (!quantity || quantity < service.min_quantity || quantity > service.max_quantity) {
-    return renderError(`Quantity must be between ${service.min_quantity} and ${service.max_quantity}.`);
+    return renderError(
+      `Quantity must be between ${service.min_quantity} and ${service.max_quantity}.`
+    );
   }
 
   const charge = calcCharge(service, quantity);
-  const user = usersModel.findById(req.session.userId);
-  if (user.wallet_balance < charge) {
+  const user = await usersModel.findById(req.session.userId);
+  if (!user || user.wallet_balance < charge) {
     return renderError(
-      `Insufficient wallet balance. This order costs ${res.locals.site.currency}${charge.toFixed(2)}, your balance is ${res.locals.site.currency}${user.wallet_balance.toFixed(2)}. Add funds first.`
+      `Insufficient wallet balance. This order costs ${res.locals.site.currency}${charge.toFixed(2)}.`
     );
   }
 
   // Debit wallet first, then try to place with the provider. If the
   // provider call fails, refund immediately so the customer is never
   // left charged with nothing happening.
-  usersModel.adjustBalance(user.id, -charge, 'order', `Order: ${service.name} x${quantity}`);
-  const order = ordersModel.create({ userId: user.id, serviceId: service.id, link, quantity, charge });
-
-  if (!service.provider_service_id || !providerApi.isConfigured()) {
-    ordersModel.setStatus(order.id, 'pending', 'Awaiting manual processing (no provider linked to this service).');
-    req.session.flash = { type: 'success', message: `Order #${order.id} placed and queued for manual processing.` };
-    return res.redirect('/dashboard/orders');
+  try {
+    await usersModel.adjustBalance(
+      user.id,
+      -charge,
+      'order',
+      `Order: ${service.name} (${quantity})`
+    );
+  } catch (err) {
+    return renderError(err.message);
   }
 
-  providerApi
-    .addOrder({ serviceId: service.provider_service_id, link, quantity })
-    .then((result) => {
-      if (result && result.order) {
-        ordersModel.setProviderOrderId(order.id, String(result.order), 'processing');
-      } else {
-        ordersModel.setStatus(order.id, 'pending', 'Provider accepted the request but returned no order id.');
-      }
-    })
-    .catch((err) => {
-      usersModel.adjustBalance(user.id, charge, 'refund', `Refund: order #${order.id} failed (${err.message})`);
-      ordersModel.setStatus(order.id, 'failed', `Provider error: ${err.message}`);
-    });
+  const order = await ordersModel.create({
+    userId: user.id,
+    serviceId: service.id,
+    link,
+    quantity,
+    charge,
+  });
 
-  req.session.flash = { type: 'success', message: `Order #${order.id} placed! Check "My orders" for live status.` };
+  if (providerApi.isConfigured() && service.provider_service_id) {
+    try {
+      const providerOrderId = await providerApi.createOrder({
+        service: service.provider_service_id,
+        link,
+        quantity,
+      });
+      await ordersModel.setProviderOrderId(order.id, providerOrderId, 'processing');
+    } catch (err) {
+      await usersModel.adjustBalance(
+        user.id,
+        charge,
+        'refund',
+        `Refund: order #${order.id} failed`
+      );
+      await ordersModel.setStatus(order.id, 'failed', `Provider error: ${err.message}`);
+    }
+  }
+
+  req.session.flash = {
+    type: 'success',
+    message: `Order #${order.id} placed! Check "My orders" for updates.`,
+  };
   res.redirect('/dashboard/orders');
 });
 
-router.get('/orders', (req, res) => {
-  const orders = ordersModel.listForUser(req.session.userId);
+router.get('/orders', async (req, res) => {
+  const orders = await ordersModel.listForUser(req.session.userId);
   res.render('dashboard/orders', { title: 'My orders', active: 'orders', orders });
 });
 
 router.post('/orders/:id/refresh', async (req, res) => {
-  const order = ordersModel.findById(req.params.id);
+  const order = await ordersModel.findById(req.params.id);
   if (!order || order.user_id !== req.session.userId) {
     req.session.flash = { type: 'error', message: 'Order not found.' };
     return res.redirect('/dashboard/orders');
@@ -126,7 +157,7 @@ router.post('/orders/:id/refresh', async (req, res) => {
   }
   try {
     const status = await providerApi.getOrderStatus(order.provider_order_id);
-    ordersModel.updateStatusFields(order.id, {
+    await ordersModel.updateStatusFields(order.id, {
       status: status.status ? status.status.toLowerCase() : undefined,
       start_count: status.start_count,
       remains: status.remains,
@@ -138,10 +169,10 @@ router.post('/orders/:id/refresh', async (req, res) => {
   res.redirect('/dashboard/orders');
 });
 
-router.get('/wallet', (req, res) => {
-  const transactions = transactionsModel.listForUser(req.session.userId);
-  const fundRequests = fundRequestsModel.listForUser(req.session.userId);
-  const minDeposit = parseFloat(settingsModel.get('min_deposit', '100')) || 100;
+router.get('/wallet', async (req, res) => {
+  const transactions = await transactionsModel.listForUser(req.session.userId);
+  const fundRequests = await fundRequestsModel.listForUser(req.session.userId);
+  const minDeposit = parseFloat(await settingsModel.get('min_deposit', '100')) || 100;
   res.render('dashboard/wallet', {
     title: 'Wallet',
     active: 'wallet',
@@ -152,18 +183,26 @@ router.get('/wallet', (req, res) => {
   });
 });
 
-router.post('/wallet/fund-request', (req, res) => {
+router.post('/wallet/fund-request', async (req, res) => {
   const amount = parseFloat(req.body.amount);
   const method = (req.body.method || 'bank_transfer').trim();
   const reference = (req.body.reference || '').trim();
-  const minDeposit = parseFloat(settingsModel.get('min_deposit', '100')) || 100;
+  const minDeposit = parseFloat(await settingsModel.get('min_deposit', '100')) || 100;
 
   if (!amount || amount < minDeposit) {
-    req.session.flash = { type: 'error', message: `Minimum top-up amount is ${res.locals.site.currency}${minDeposit}.` };
+    req.session.flash = {
+      type: 'error',
+      message: `Minimum top-up amount is ${res.locals.site.currency}${minDeposit}.`,
+    };
     return res.redirect('/dashboard/wallet');
   }
 
-  fundRequestsModel.create({ userId: req.session.userId, amount, method, reference });
+  await fundRequestsModel.create({
+    userId: req.session.userId,
+    amount,
+    method,
+    reference,
+  });
   req.session.flash = {
     type: 'success',
     message: 'Top-up request submitted. Our team will verify and credit your wallet shortly.',
@@ -175,17 +214,18 @@ router.get('/profile', (req, res) => {
   res.render('dashboard/profile', { title: 'Profile', active: 'profile', errors: [] });
 });
 
-router.post('/profile/password', (req, res) => {
+router.post('/profile/password', async (req, res) => {
   const { currentPassword, newPassword, confirmPassword } = req.body;
-  const user = usersModel.findById(req.session.userId);
+  const user = await usersModel.findById(req.session.userId);
 
-  if (!bcrypt.compareSync(currentPassword || '', user.password_hash)) {
+  if (!user || !bcrypt.compareSync(currentPassword || '', user.password_hash)) {
     return res.status(400).render('dashboard/profile', {
       title: 'Profile',
       active: 'profile',
       errors: [{ msg: 'Current password is incorrect.' }],
     });
   }
+
   if (!newPassword || newPassword.length < 8 || newPassword !== confirmPassword) {
     return res.status(400).render('dashboard/profile', {
       title: 'Profile',
@@ -194,8 +234,12 @@ router.post('/profile/password', (req, res) => {
     });
   }
 
-  db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(bcrypt.hashSync(newPassword, 10), user.id);
-  req.session.flash = { type: 'success', message: 'Password updated.' };
+  await db.query('UPDATE users SET password_hash = $1 WHERE id = $2', [
+    bcrypt.hashSync(newPassword, 10),
+    req.session.userId,
+  ]);
+
+  req.session.flash = { type: 'success', message: 'Password updated successfully.' };
   res.redirect('/dashboard/profile');
 });
 

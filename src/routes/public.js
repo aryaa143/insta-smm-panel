@@ -5,8 +5,8 @@ const usersModel = require('../models/users');
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  const services = servicesModel.listActiveWithCategory();
+router.get('/', async (req, res) => {
+  const services = await servicesModel.listActiveWithCategory();
   const grouped = {};
   for (const s of services) {
     const cat = s.category_name || 'Other';
@@ -14,9 +14,12 @@ router.get('/', (req, res) => {
     grouped[cat].push(s);
   }
 
+  const statusCounts = await ordersModel.countByStatus();
+  const completedRow = statusCounts.find((r) => r.status === 'completed');
+
   const stats = {
-    users: usersModel.countAll(),
-    completedOrders: (ordersModel.countByStatus().find((r) => r.status === 'completed') || { n: 0 }).n,
+    users: await usersModel.countAll(),
+    completedOrders: completedRow ? completedRow.n : 0,
   };
 
   res.render('public/home', { title: 'Instagram Growth Services', grouped, stats });

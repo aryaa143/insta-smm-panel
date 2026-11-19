@@ -1,14 +1,13 @@
-const fs = require('fs');
-const path = require('path');
-const Database = require('better-sqlite3');
+require('dotenv').config();
+const { Pool } = require('pg');
 
-const DATA_DIR = path.join(__dirname, '..', '..', 'data');
-const DB_PATH = path.join(DATA_DIR, 'panel.db');
+if (!process.env.DATABASE_URL) {
+  console.warn('Warning: DATABASE_URL is not set.');
+}
 
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
+});
 
-const db = new Database(DB_PATH);
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
-
-module.exports = db;
+module.exports = pool;

@@ -2,19 +2,23 @@ const usersModel = require('../models/users');
 
 // Loads the logged-in user (if any) onto res.locals for every request,
 // so views can always check `currentUser`.
-function loadUser(req, res, next) {
-  if (req.session && req.session.userId) {
-    const user = usersModel.findById(req.session.userId);
-    if (user && user.status !== 'banned') {
-      res.locals.currentUser = user;
-      return next();
+async function loadUser(req, res, next) {
+  try {
+    if (req.session && req.session.userId) {
+      const user = await usersModel.findById(req.session.userId);
+      if (user && user.status !== 'banned') {
+        res.locals.currentUser = user;
+        return next();
+      }
+      // stale/invalid session (user deleted or banned) - clear it
+      req.session.destroy(() => next());
+      return;
     }
-    // stale/invalid session (user deleted or banned) - clear it
-    req.session.destroy(() => next());
-    return;
+    res.locals.currentUser = null;
+    next();
+  } catch (err) {
+    next(err);
   }
-  res.locals.currentUser = null;
-  next();
 }
 
 function requireAuth(req, res, next) {

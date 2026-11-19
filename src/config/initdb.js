@@ -1,65 +1,72 @@
-// Creates the SQLite schema (if not already there) and seeds:
-//  - the admin account from .env
-//  - a starter set of Instagram categories (empty of services - real services
-//    are pulled from YOUR upstream provider via Admin -> Services -> Sync,
-//    not invented here)
-//  - default site settings
-//
-// Safe to re-run: every step checks "does this already exist" first.
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const db = require('./db');
 
-const dataDir = path.join(__dirname, '..', '..', 'data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+async function initDb() {
+  const schemaPath = path.join(__dirname, 'schema.sql');
+  const schema = fs.readFileSync(schemaPath, 'utf8');
+  await db.query(schema);
 
-const schema = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
-db.exec(schema);
+  const adminEmail = (process.env.ADMIN_EMAIL || 'akashkushwaha14385@gmail.com').toLowerCase();
+  const existingAdminRes = await db.query('SELECT id FROM users WHERE email = $1', [adminEmail]);
 
-// --- seed admin account ---
-const adminEmail = (process.env.ADMIN_EMAIL || 'akashkushwaha14385@gmail.com').toLowerCase();
-const existingAdmin = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
-
-if (!existingAdmin) {
-  const passwordHash = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'akashpriya21012024', 10);
-  db.prepare(
-    `INSERT INTO users (name, email, password_hash, role, wallet_balance, status)
-     VALUES (?, ?, ?, 'admin', 0, 'active')`
-  ).run(process.env.ADMIN_NAME || 'Admin', adminEmail, passwordHash);
-  console.log(`Admin account created: ${adminEmail}`);
-} else {
-  console.log(`Admin account already exists: ${adminEmail}`);
-}
-
-// --- seed starter categories (structure only, no invented services/prices) ---
-const starterCategories = [
-  'Instagram Followers',
-  'Instagram Likes',
-  'Instagram Views',
-  'Instagram Comments',
-  'Instagram Story / Reel',
-];
-const insertCategory = db.prepare('INSERT OR IGNORE INTO categories (name, sort_order) VALUES (?, ?)');
-starterCategories.forEach((name, i) => insertCategory.run(name, i));
-
-// --- default settings ---
-const defaultSettings = {
-  app_name: process.env.APP_NAME || 'InstaBoost Panel',
-  currency_symbol: process.env.CURRENCY_SYMBOL || '₹',
-  default_markup: process.env.DEFAULT_MARKUP || '1.4',
-  provider_api_url: process.env.PROVIDER_API_URL || '',
-  provider_api_key: process.env.PROVIDER_API_KEY || '',
-  min_deposit: '100',
-  support_email: process.env.ADMIN_EMAIL || 'admin@example.com',
-};
-// only fill in blanks - never clobber a value an admin already set via the UI
-for (const [key, value] of Object.entries(defaultSettings)) {
-  const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key);
-  if (!row) {
-    db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)').run(key, value);
+  if (existingAdminRes.rows.length === 0) {
+    const passwordHash = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'akashpriya21012024', 10);
+    await db.query(
+      `INSERT INTO users (name, email, password_hash, role, wallet_balance, status)
+       VALUES ($1, $2, $3, 'admin', 0, 'active')`,
+      [process.env.ADMIN_NAME || 'Admin', adminEmail, passwordHash]
+    );
+    console.log(`Admin account created: ${adminEmail}`);
+  } else {
+    console.log(`Admin account already exists: ${adminEmail}`);
   }
+
+  const starterCategories = [
+    'Instagram Followers',
+    'Instagram Likes',
+    'Instagram Views',
+    'Instagram Comments',
+    'Instagram Story / Reel',
+  ];
+
+  for (let i = 0; i < starterCategories.length; i++) {
+    await db.query(
+      `INSERT INTO categories (name, sort_order) VALUES ($1, $2)
+       ON CONFLICT (name) DO NOTHING`,
+      [starterCategories[i], i]
+    );
+  }
+
+  const defaultSettings = {
+    app_name: process.env.APP_NAME || 'InstaBoost Panel',
+    currency_symbol: process.env.CURRENCY_SYMBOL || '₹',
+    default_markup: process.env.DEFAULT_MARKUP || '1.4',
+    provider_api_url: process.env.PROVIDER_API_URL || '',
+    provider_api_key: process.env.PROVIDER_API_KEY || '',
+    min_deposit: '100',
+    support_email: process.env.ADMIN_EMAIL || 'admin@example.com',
+  };
+
+  for (const [key, value] of Object.entries(defaultSettings)) {
+    const existingSetting = await db.query('SELECT value FROM settings WHERE key = $1', [key]);
+    if (existingSetting.rows.length === 0) {
+      await db.query('INSERT INTO settings (key, value) VALUES ($1, $2)', [key, value]);
+    }
+  }
+
+  console.log('Database initialised on Supabase PostgreSQL');
 }
 
-console.log('Database initialised at data/panel.db');
+if (require.main === module) {
+  initDb()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error('Failed to initialise database:', err);
+      process.exit(1);
+    });
+}
+
+module.exports = initDb;
