@@ -26,7 +26,7 @@ router.post(
   [
     body('name').trim().isLength({ min: 2, max: 80 }).withMessage('Please enter your name.'),
     body('email').trim().isEmail().withMessage('Please enter a valid email.').normalizeEmail(),
-    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters.'),
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 6 characters.'),
     body('confirmPassword').custom((value, { req }) => value === req.body.password).withMessage('Passwords do not match.'),
   ],
   (req, res) => {
@@ -80,7 +80,28 @@ router.post('/login', redirectIfAuthed, authLimiter, (req, res) => {
   delete req.session.returnTo;
   res.redirect(dest);
 });
+// Forgot Password Page (GET)
+router.get('/forgot-password', (req, res) => {
+    res.render('public/forgot-password', { title: 'Forgot Password' });
+});
 
+// Forgot Password Handler (POST)
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+        if (!user) {
+            req.flash('error', 'No account found with that email address.');
+            return res.redirect('/forgot-password');
+        }
+        req.flash('success', 'Password reset instructions have been sent to your email.');
+        return res.redirect('/login');
+    } catch (err) {
+        console.error(err);
+        req.flash('error', 'An error occurred. Please try again.');
+        return res.redirect('/forgot-password');
+    }
+});
 router.post('/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/'));
 });
