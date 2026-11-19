@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 
   let providerBalance = null;
   let providerError = null;
-  if (providerApi.isConfigured()) {
+  if (await providerApi.isConfigured()) {
     try {
       const bal = await providerApi.getBalance();
       providerBalance = bal;

@@ -7,13 +7,13 @@
 //
 // Reference actions (common across providers like the ones listed on
 // most "SMM panel script" docs):
-//   action=services                -> list of sellable services
-//   action=add     + service,link,quantity -> place an order
-//   action=status  + order                 -> single order status
-//   action=status  + orders (csv)          -> multi order status
-//   action=balance                         -> your provider account balance
-//   action=refill  + order                 -> request a refill
-//   action=cancel  + order(s)              -> request a cancellation
+//   action=services          -> list of sellable services
+//   action=add + service,link,quantity -> place an order
+//   action=status + order    -> single order status
+//   action=status + orders (csv) -> multi order status
+//   action=balance           -> your provider account balance
+//   action=refill + order    -> request a refill
+//   action=cancel + order(s)-> request a cancellation
 //
 // If your specific provider deviates from this (field names etc.), this
 // is the only file you need to edit.
@@ -21,19 +21,22 @@
 const fetch = require('node-fetch');
 const settingsModel = require('../models/settings');
 
-function getCreds() {
-  const url = settingsModel.get('provider_api_url', process.env.PROVIDER_API_URL || '');
-  const key = settingsModel.get('provider_api_key', process.env.PROVIDER_API_KEY || '');
-  return { url, key };
+async function getCreds() {
+  const rawUrl = await settingsModel.get('provider_api_url', process.env.PROVIDER_API_URL || '');
+  const rawKey = await settingsModel.get('provider_api_key', process.env.PROVIDER_API_KEY || '');
+  return {
+    url: String(rawUrl || '').trim(),
+    key: String(rawKey || '').trim(),
+  };
 }
 
-function isConfigured() {
-  const { url, key } = getCreds();
+async function isConfigured() {
+  const { url, key } = await getCreds();
   return Boolean(url && key);
 }
 
 async function call(params = {}) {
-  const { url, key } = getCreds();
+  const { url, key } = await getCreds();
   if (!url || !key) {
     const err = new Error('Upstream provider API is not configured yet (Admin -> Settings).');
     err.code = 'PROVIDER_NOT_CONFIGURED';
@@ -76,19 +79,13 @@ async function call(params = {}) {
 }
 
 const getServices = () => call({ action: 'services' });
-
 const getBalance = () => call({ action: 'balance' });
-
 const addOrder = ({ serviceId, link, quantity, extra = {} }) =>
   call({ action: 'add', service: serviceId, link, quantity, ...extra });
-
 const getOrderStatus = (providerOrderId) => call({ action: 'status', order: providerOrderId });
-
 const getMultiStatus = (providerOrderIds = []) =>
   call({ action: 'status', orders: providerOrderIds.join(',') });
-
 const requestRefill = (providerOrderId) => call({ action: 'refill', order: providerOrderId });
-
 const requestCancel = (providerOrderIds = []) =>
   call({ action: 'cancel', orders: providerOrderIds.join(',') });
 
