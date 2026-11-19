@@ -91,7 +91,7 @@ router.post('/login', redirectIfAuthed, authLimiter, async (req, res) => {
 
 // Forgot Password Page (GET)
 router.get('/forgot-password', (req, res) => {
-  res.render('public/forgot-password', { title: 'Forgot Password' });
+ res.render('public/forget-password', { title: 'Forgot Password' }); 
 });
 
 // Forgot Password Handler (POST)
