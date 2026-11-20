@@ -8,7 +8,13 @@ async function initDb() {
   const schemaPath = path.join(__dirname, 'schema.sql');
   const schema = fs.readFileSync(schemaPath, 'utf8');
   await db.query(schema);
-
+await db.query(`
+    CREATE TABLE IF NOT EXISTS session (
+      sid varchar NOT NULL PRIMARY KEY,
+      sess json NOT NULL,
+      expire timestamp(6) NOT NULL
+    )
+  `);
   const adminEmail = (process.env.ADMIN_EMAIL || 'akashkushwaha14385@gmail.com').toLowerCase();
   const existingAdminRes = await db.query('SELECT id FROM users WHERE email = $1', [adminEmail]);
 

@@ -82,8 +82,9 @@ const update = async (id, svc) => {
          description = $3,
          rate_per_1000 = $4,
          min_quantity = $5,
-         max_quantity = $6
-     WHERE id = $7`,
+         max_quantity = $6,
+         status = COALESCE($7, status)
+     WHERE id = $8`,
     [
       svc.category_id,
       svc.name,
@@ -91,6 +92,7 @@ const update = async (id, svc) => {
       svc.rate_per_1000,
       svc.min_quantity,
       svc.max_quantity,
+      svc.status || null,
       id,
     ]
   );
