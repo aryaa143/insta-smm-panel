@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const pgSessionStore = {
+class PgSessionStore extends session.Store {
   async get(sid, cb) {
     try {
       const res = await db.query(
@@ -36,7 +36,8 @@ const pgSessionStore = {
     } catch (err) {
       cb(err);
     }
-  },
+  }
+
   async set(sid, sess, cb) {
     try {
       const maxAge = (sess.cookie && sess.cookie.maxAge) || 1000 * 60 * 60 * 24 * 7;
@@ -51,7 +52,8 @@ const pgSessionStore = {
     } catch (err) {
       cb(err);
     }
-  },
+  }
+
   async destroy(sid, cb) {
     try {
       await db.query('DELETE FROM session WHERE sid = $1', [sid]);
@@ -59,8 +61,10 @@ const pgSessionStore = {
     } catch (err) {
       cb(err);
     }
-  },
-};
+  }
+}
+
+const pgSessionStore = new PgSessionStore();
 
 app.use(
   session({
