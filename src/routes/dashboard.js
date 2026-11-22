@@ -51,11 +51,6 @@ router.get('/order/new', async (req, res) => {
 
 router.post('/order/new', async (req, res) => {
   const serviceId = parseInt(req.body.service_id, 10);
-  if (!Number.isInteger(serviceId) || serviceId <= 0) {
-  return renderError('Please select a service first.');
-}
-  const link = (req.body.link || '').trim();
-  const quantity = parseInt(req.body.quantity, 10);
 
   const services = await servicesModel.listActiveWithCategory();
   const grouped = {};
@@ -65,7 +60,7 @@ router.post('/order/new', async (req, res) => {
     grouped[cat].push(s);
   }
 
-  const renderError = (msg) =>
+  const renderError = (msg) => {
     res.status(400).render('dashboard/new-order', {
       title: 'New Order',
       active: 'new-order',
@@ -73,6 +68,13 @@ router.post('/order/new', async (req, res) => {
       preselect: serviceId,
       errors: [{ msg }],
     });
+  };
+  if (!Number.isInteger(serviceId) || serviceId <= 0) {
+    return renderError('Please select a service first.');
+  }
+
+  const link = (req.body.link || '').trim();
+  const quantity = parseInt(req.body.quantity, 10);
 
   const service = await servicesModel.findById(serviceId);
   if (!service || service.status !== 'active') {
