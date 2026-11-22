@@ -20,14 +20,14 @@
   <form action="/dashboard/order/new" method="POST" class="bg-white border border-gray-100 rounded-xl p-6 max-w-xl space-y-5" id="order-form">
     <div>
       <label class="block text-sm font-medium mb-1">Service</label>
-      <select name="serviceId" id="serviceId" required
+      <select name="service_id" id="serviceId" required
         class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
         <% Object.keys(grouped).forEach(function(cat) { %>
           <optgroup label="<%= cat %>">
             <% grouped[cat].forEach(function(s) { %>
               <option value="<%= s.id %>"
                 data-rate="<%= s.rate_per_1000 %>" data-min="<%= s.min_quantity %>" data-max="<%= s.max_quantity %>"
-                <%= (preselect && preselect === s.id) ? 'selected' : '' %>>
+              <%= (preselect && preselect === s.id) ? 'selected' : '' %>>
                 <%= s.name %> &mdash; <%= site.currency %><%= s.rate_per_1000.toFixed(2) %>/1000
               </option>
             <% }); %>
@@ -68,7 +68,7 @@
       var qty = document.getElementById('quantity');
       var preview = document.getElementById('charge-preview');
       var hint = document.getElementById('minmax-hint');
-      var currency = <%- JSON.stringify(site.currency) %>;
+      var currency = "<%= site.currency %>";
 
       function current() {
         var opt = select.options[select.selectedIndex];
