@@ -1,10 +1,50 @@
-<div class="flex-1 flex max-w-6xl mx-auto w-full">
-  <aside class="hidden sm:block w-56 shrink-0 border-r border-gray-100 p-4 space-y-1">
-    <% const dlink = (href, label, key) => `<a href="${href}" class="block px-3 py-2 rounded-lg text-sm font-medium ${active === key ? 'bg-brand-50 text-brand-700' : 'text-gray-600 hover:bg-gray-50'}">${label}</a>`; %>
-    <%- dlink('/dashboard', 'Overview', 'overview') %>
-    <%- dlink('/dashboard/order/new', 'New order', 'new-order') %>
-    <%- dlink('/dashboard/orders', 'My orders', 'orders') %>
-    <%- dlink('/dashboard/wallet', 'Wallet', 'wallet') %>
-    <%- dlink('/dashboard/profile', 'Profile', 'profile') %>
+<div class="flex-1 flex max-w-6xl mx-auto w-full relative">
+  <!-- Mobile Drawer Backdrop -->
+  <div id="mobileDrawerBackdrop" onclick="toggleMobileDrawer(false)" class="fixed inset-0 bg-black/40 z-40 hidden sm:hidden"></div>
+
+  <!-- Sidebar / Mobile Drawer -->
+  <aside id="dashboardSidebar" class="fixed sm:static inset-y-0 left-0 z-50 w-64 sm:w-60 shrink-0 bg-white border-r border-gray-100 p-4 flex flex-col justify-between transform -translate-x-full sm:translate-x-0 transition-transform duration-200 ease-out">
+    <div class="space-y-4">
+      <!-- User & Brand Card -->
+      <div class="rounded-xl brand-gradient text-white p-4 shadow-sm">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center font-extrabold text-base shrink-0">
+              <%= (typeof currentUser !== 'undefined' && currentUser && currentUser.username) ? String(currentUser.username).charAt(0).toUpperCase() : 'N' %>
+            </div>
+            <div class="min-w-0">
+              <div class="font-bold text-sm truncate"><%= (typeof currentUser !== 'undefined' && currentUser && currentUser.username) ? currentUser.username : 'User' %></div>
+              <div class="text-xs text-white/85 truncate"><%= (typeof site !== 'undefined' && site && site.currency) ? site.currency : '₹' %><%= (typeof currentUser !== 'undefined' && currentUser && typeof currentUser.wallet_balance === 'number') ? currentUser.wallet_balance.toFixed(2) : '0.00' %></div>
+            </div>
+          </div>
+          <button type="button" onclick="toggleMobileDrawer(false)" class="sm:hidden w-7 h-7 rounded-lg bg-white/15 hover:bg-white/25 flex items-center justify-center text-white text-sm" aria-label="Close menu">✕</button>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <% const dlink = (href, label, key, badgeText = '') => {
+           const isActive = (typeof active !== 'undefined' && active === key);
+           return `<a href="${href}" class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition ${isActive ? 'brand-gradient text-white shadow-sm' : 'text-gray-700 hover:bg-gray-50'}"><span>${label}</span>${badgeText ? `<span class="text-[11px] px-1.5 py-0.5 rounded ${isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}">${badgeText}</span>` : ''}</a>`;
+         } %>
+      <nav class="space-y-1">
+        <%- dlink('/dashboard/order/new', 'New Order', 'new-order') %>
+        <%- dlink('/dashboard', 'Overview', 'overview') %>
+        <%- dlink('/services', 'Services', 'services') %>
+        <%- dlink('/dashboard/orders', 'Orders', 'orders') %>
+        <%- dlink('/dashboard/wallet', 'Add Funds', 'wallet') %>
+        <%- dlink('/dashboard/profile', 'Account & Profile', 'profile') %>
+        <a href="https://wa.me/919171547602?text=Hello%20InstaBoost%20Panel%20Support%2C%20I%20need%20help%20with%20my%20order." target="_blank" rel="noopener noreferrer" class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition"> 
+          <span>WhatsApp Support</span>
+          <span class="text-[11px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-semibold">Chat</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Bottom Quick Action -->
+    <div class="pt-4 mt-4 border-t border-gray-100 space-y-2">
+      <a href="/dashboard/wallet" class="block w-full text-center py-2 px-3 rounded-lg brand-gradient text-white text-xs font-semibold shadow-sm hover:opacity-95 transition">+ Add Funds</a>
+    </div>
   </aside>
+
+  <!-- Main Content Area -->
   <main class="flex-1 p-4 sm:p-8 min-w-0">

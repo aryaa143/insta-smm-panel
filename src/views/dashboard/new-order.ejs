@@ -1,102 +1,224 @@
-<%- include('../partials/head', { title }) %>
+<%- include('../partials/head') %>
 <%- include('../partials/nav') %>
-<%- include('../partials/dashboard_shell_open', { active }) %>
+<%- include('../partials/dashboard_shell_open', { active: 'new-order' }) %>
 
-  <h1 class="text-2xl font-extrabold mb-1">Place a new order</h1>
-  <p class="text-gray-500 mb-6">Wallet balance: <strong><%= site.currency %><%= currentUser.wallet_balance.toFixed(2) %></strong></p>
-
-  <% if (errors && errors.length) { %>
-    <div class="mb-5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
-      <% errors.forEach(function(e) { %><p><%= e.msg %></p><% }); %>
+<div class="space-y-6">
+  <!-- Top Mobile Menu + Title Bar -->
+  <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center gap-2.5">
+      <button type="button" onclick="toggleMobileDrawer(true)" class="sm:hidden px-3 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm font-semibold shadow-2xs">☰</button>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-extrabold text-gray-900">Place a new order</h1>
+        <p class="text-xs sm:text-sm text-gray-500">InstaBoost Panel — Fast &amp; reliable social media growth</p>
+      </div>
     </div>
-  <% } %>
+    <a href="/dashboard/wallet" class="px-3.5 py-2 rounded-lg brand-gradient text-white text-xs sm:text-sm font-semibold shadow-sm hover:opacity-95 transition">+ Add funds</a>
+  </div>
 
-  <% const allServices = Object.values(grouped).flat(); %>
-  <% if (allServices.length === 0) { %>
-    <div class="bg-white border border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-500">
-      No services are available to order yet. Please check back soon.
-    </div>
-  <% } else { %>
-  <form action="/dashboard/order/new" method="POST" class="bg-white border border-gray-100 rounded-xl p-6 max-w-xl space-y-5" id="order-form">
-    <div>
-      <label class="block text-sm font-medium mb-1">Service</label>
-      <select name="service_id" id="serviceId" required
-        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-        <% Object.keys(grouped).forEach(function(cat) { %>
-          <optgroup label="<%= cat %>">
-            <% grouped[cat].forEach(function(s) { %>
+  <!-- Quick Action Tiles -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <a href="/dashboard/profile" class="bg-white border border-gray-100 rounded-xl p-3.5 text-center shadow-2xs hover:border-gray-200 transition">
+      <div class="text-sm font-bold text-gray-800">Account</div>
+      <div class="text-xs text-gray-500 mt-0.5">Profile &amp; details</div>
+    </a>
+    <a href="/dashboard/orders" class="bg-white border border-gray-100 rounded-xl p-3.5 text-center shadow-2xs hover:border-gray-200 transition">
+      <div class="text-sm font-bold text-gray-800">History</div>
+      <div class="text-xs text-gray-500 mt-0.5">Track all orders</div>
+    </a>
+    <a href="https://wa.me/919171547602?text=Hello%20InstaBoost%20Panel%20Support%2C%20I%20need%20support." target="_blank" rel="noopener noreferrer" class="bg-white border border-gray-100 rounded-xl p-3.5 text-center shadow-2xs hover:border-gray-200 transition">
+      <div class="text-sm font-bold text-gray-800">Support</div>
+      <div class="text-xs text-gray-500 mt-0.5">WhatsApp help</div>
+    </a>
+    <a href="/dashboard/wallet" class="bg-white border border-gray-100 rounded-xl p-3.5 text-center shadow-2xs hover:border-gray-200 transition">
+      <div class="text-sm font-bold text-gray-800">Wallet</div>
+      <div class="text-xs text-gray-500 mt-0.5">Balance &amp; funds</div>
+    </a>
+  </div>
+
+  <!-- Platform Filter Pills -->
+  <div class="flex items-center gap-2 overflow-x-auto pb-1" id="platformFilterBar">
+    <button type="button" data-platform="all" class="platform-pill active px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold brand-gradient text-white shadow-sm shrink-0">All</button>
+    <button type="button" data-platform="instagram" class="platform-pill px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shrink-0">Instagram</button>
+    <button type="button" data-platform="youtube" class="platform-pill px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shrink-0">YouTube</button>
+    <button type="button" data-platform="facebook" class="platform-pill px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shrink-0">Facebook</button>
+  </div>
+
+  <!-- Order Form Card -->
+  <div class="bg-white border border-gray-100 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
+    <% if (typeof services !== 'undefined' && Array.isArray(services) && services.length) { %>
+      <div>
+        <label for="serviceSearch" class="block text-xs font-semibold text-gray-600 mb-1.5">Search for a service</label>
+        <input id="serviceSearch" type="text" placeholder="Search for a service..." class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300">
+      </div>
+
+      <form action="/dashboard/order/new" method="POST" class="space-y-4">
+        <div>
+          <label for="serviceId" class="block text-xs font-semibold text-gray-600 mb-1.5">Services</label>
+          <select id="serviceId" name="service_id" required class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pink-300">
+            <% services.forEach(function(s) {
+                 const textLower = String(s.name || '').toLowerCase();
+                 const plat = textLower.includes('youtube') ? 'youtube' : (textLower.includes('facebook') || textLower.includes('fb') ? 'facebook' : 'instagram');
+            %>
               <option value="<%= s.id %>"
-                data-rate="<%= s.rate_per_1000 %>" data-min="<%= s.min_quantity %>" data-max="<%= s.max_quantity %>"
-              <%= (preselect && preselect === s.id) ? 'selected' : '' %>>
-                <%= s.name %> &mdash; <%= site.currency %><%= s.rate_per_1000.toFixed(2) %>/1000
+                      data-platform="<%= plat %>"
+                      data-rate="<%= s.rate %>"
+                      data-min="<%= s.min_qty || s.min || 10 %>"
+                      data-max="<%= s.max_qty || s.max || 100000 %>">
+                #<%= s.id %> - <%= s.name %> (<%= (typeof site !== 'undefined' && site && site.currency) ? site.currency : '₹' %><%= s.rate %>)
               </option>
             <% }); %>
-          </optgroup>
-        <% }); %>
-      </select>
-      <p class="text-xs text-gray-400 mt-1" id="minmax-hint"></p>
-    </div>
+          </select>
+        </div>
 
-    <div>
-      <label class="block text-sm font-medium mb-1">Instagram link</label>
-      <input type="url" name="link" required placeholder="https://instagram.com/p/..."
-        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
-      <p class="text-xs text-gray-400 mt-1">Public post, reel or profile link. We never ask for your password.</p>
-    </div>
+        <div>
+          <label for="link" class="block text-xs font-semibold text-gray-600 mb-1.5">Link</label>
+          <input id="link" name="link" type="url" required placeholder="https://..." class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300">
+        </div>
 
-    <div>
-      <label class="block text-sm font-medium mb-1">Quantity</label>
-      <input type="number" name="quantity" id="quantity" required
-        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
-    </div>
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label for="quantity" class="block text-xs font-semibold text-gray-600">Quantity</label>
+            <span id="minmax-hint" class="text-xs text-gray-500">Min / Max</span>
+          </div>
+          <input id="quantity" name="quantity" type="number" min="1" required placeholder="Enter quantity" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300">
+        </div>
 
-    <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
-      <span class="text-sm text-gray-600">Estimated charge</span>
-      <span class="text-lg font-extrabold" id="charge-preview"><%= site.currency %>0.00</span>
-    </div>
+        <div class="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+          <span class="text-sm text-gray-600 font-medium">Estimated charge</span>
+          <span class="text-lg font-extrabold text-gray-900" id="charge-preview"><%= (typeof site !== 'undefined' && site && site.currency) ? site.currency : '₹' %>0.00</span>
+        </div>
 
-    <button class="w-full py-2.5 rounded-lg brand-gradient text-white font-semibold hover:opacity-90">Place order</button>
-    <p class="text-xs text-gray-400 text-center">
-      By ordering you confirm you've read our <a href="/terms" class="underline" target="_blank">Terms of Service</a>.
+        <button type="submit" class="w-full py-3 rounded-xl brand-gradient text-white font-bold text-sm shadow-sm hover:opacity-95 transition">Place Order</button>
+      </form>
+    <% } else { %>
+      <p class="text-sm text-gray-500">No active services available right now.</p>
+    <% } %>
+  </div>
+
+  <!-- Why Choose Us -->
+  <div class="bg-white border border-gray-100 rounded-2xl p-4 sm:p-6 shadow-xs space-y-4">
+    <h2 class="text-base sm:text-lg font-extrabold text-gray-900">Why choose us</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="rounded-xl bg-gray-50 p-4 border border-gray-100">
+        <div class="font-bold text-sm text-gray-900">Fast start</div>
+        <div class="text-xs text-gray-500 mt-1">Instant order processing</div>
+      </div>
+      <div class="rounded-xl bg-gray-50 p-4 border border-gray-100">
+        <div class="font-bold text-sm text-gray-900">Secure</div>
+        <div class="text-xs text-gray-500 mt-1">Safe &amp; protected orders</div>
+      </div>
+      <div class="rounded-xl bg-gray-50 p-4 border border-gray-100">
+        <div class="font-bold text-sm text-gray-900">Support</div>
+        <div class="text-xs text-gray-500 mt-1">WhatsApp support available</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How To Order -->
+  <div class="bg-white border border-gray-100 rounded-2xl p-4 sm:p-6 shadow-xs space-y-3">
+    <h2 class="text-base sm:text-lg font-extrabold text-gray-900">How to order</h2>
+    <div class="space-y-3 text-sm">
+      <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
+        <div class="font-bold text-gray-900">1. Add funds</div>
+        <div class="text-xs text-gray-500 mt-0.5">Top up your wallet balance easily.</div>
+      </div>
+      <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
+        <div class="font-bold text-gray-900">2. Choose a service</div>
+        <div class="text-xs text-gray-500 mt-0.5">Select platform filter, search or pick a service.</div>
+      </div>
+      <div class="p-3 rounded-xl bg-gray-50 border border-gray-100">
+        <div class="font-bold text-gray-900">3. Paste your link &amp; quantity</div>
+        <div class="text-xs text-gray-500 mt-0.5">Check min/max &amp; charge, then click Place Order.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Announcement -->
+  <div class="bg-white border border-gray-100 rounded-2xl p-4 sm:p-6 shadow-xs space-y-2">
+    <h2 class="text-base sm:text-lg font-extrabold text-gray-900">Announcement</h2>
+    <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
+      Welcome to <strong>InstaBoost Panel</strong>! Check live service rates, minimum/maximum quantities before ordering, and reach out directly on WhatsApp (<span class="font-semibold">+91 9171547602</span>) for any order assistance.
     </p>
-  </form>
-  <% } %>
+  </div>
+</div>
 
-  <script>
-    (function () {
-      var select = document.getElementById('serviceId');
-      var qty = document.getElementById('quantity');
-      var preview = document.getElementById('charge-preview');
-      var hint = document.getElementById('minmax-hint');
-      var currency = "<%= site.currency %>";
+<script>
+  (function () {
+    var select = document.getElementById('serviceId');
+    var qty = document.getElementById('quantity');
+    var preview = document.getElementById('charge-preview');
+    var hint = document.getElementById('minmax-hint');
+    var searchInput = document.getElementById('serviceSearch');
+    var pills = document.querySelectorAll('.platform-pill');
+    var currency = "<%- (typeof site !== 'undefined' && site && site.currency) ? site.currency : '₹' %>";
+    var activePlatform = 'all';
 
-      function current() {
-        var opt = select.options[select.selectedIndex];
-        return opt ? { rate: parseFloat(opt.dataset.rate), min: parseInt(opt.dataset.min, 10), max: parseInt(opt.dataset.max, 10) } : null;
+    if (!select || !qty || !preview) return;
+
+    var allOptions = Array.prototype.slice.call(select.options);
+
+    function current() {
+      var opt = select.options[select.selectedIndex];
+      if (!opt) return null;
+      return {
+        rate: parseFloat(opt.dataset.rate) || 0,
+        min: parseInt(opt.dataset.min, 10) || 1,
+        max: parseInt(opt.dataset.max, 10) || 1000000
+      };
+    }
+
+    function refreshHintAndCharge() {
+      var c = current();
+      if (!c) {
+        if (hint) hint.textContent = 'No matching service';
+        preview.textContent = currency + '0.00';
+        return;
       }
+      if (hint) hint.textContent = 'Min ' + c.min + ' / Max ' + c.max;
+      qty.min = c.min;
+      qty.max = c.max;
+      var q = parseFloat(qty.value) || 0;
+      var total = (q / 1000) * c.rate;
+      preview.textContent = currency + (isNaN(total) ? '0.00' : total.toFixed(2));
+    }
 
-      function refreshHint() {
-        var c = current();
-        if (!c) return;
-        hint.textContent = 'Min ' + c.min + ' / Max ' + c.max;
-        qty.min = c.min; qty.max = c.max;
-        if (!qty.value) qty.value = c.min;
-        refreshPreview();
+    function applyFilters() {
+      var qText = searchInput ? searchInput.value.trim().toLowerCase() : '';
+      select.innerHTML = '';
+      allOptions.forEach(function (opt) {
+        var plat = opt.dataset.platform || 'instagram';
+        var matchesPlat = activePlatform === 'all' || plat === activePlatform;
+        var matchesText = !qText || opt.text.toLowerCase().indexOf(qText) !== -1;
+        if (matchesPlat && matchesText) {
+          select.appendChild(opt);
+        }
+      });
+      if (select.options.length > 0) {
+        select.selectedIndex = 0;
       }
+      refreshHintAndCharge();
+    }
 
-      function refreshPreview() {
-        var c = current();
-        if (!c) return;
-        var n = parseInt(qty.value, 10) || 0;
-        var charge = (c.rate / 1000) * n;
-        preview.textContent = currency + charge.toFixed(2);
-      }
+    pills.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        activePlatform = btn.dataset.platform || 'all';
+        pills.forEach(function (b) {
+          b.className = 'platform-pill px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shrink-0';
+        });
+        btn.className = 'platform-pill active px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold brand-gradient text-white shadow-sm shrink-0';
+        applyFilters();
+      });
+    });
 
-      select.addEventListener('change', refreshHint);
-      qty.addEventListener('input', refreshPreview);
-      refreshHint();
-    })();
-  </script>
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilters);
+    }
+    select.addEventListener('change', refreshHintAndCharge);
+    qty.addEventListener('input', refreshHintAndCharge);
+
+    refreshHintAndCharge();
+  })();
+</script>
 
 <%- include('../partials/dashboard_shell_close') %>
 <%- include('../partials/footer') %>
