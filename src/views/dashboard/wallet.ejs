@@ -31,6 +31,35 @@
       <input type="radio" name="method" value="bank_transfer" onchange="togglePayOption()">
       <span><strong>3. Bank / Other</strong><br><span class="text-gray-500">Manual check</span></spa
     <div class="bg-white border border-gray-100 rounded-xl">
+      <div id="opt-qr" class="border rounded-lg p-3 bg-gray-50 text-center space-y-2">
+  <p class="text-sm font-medium">Scan QR code to pay</p>
+  <img src="/img/qr.png" alt="UPI QR Code" style="max-width: 170px; height: auto;" class="mx-auto rounded">
+  <p class="text-xs text-gray-600">Payment verify hote hi balance automatically add hoga.</p>
+</div>
+
+<div id="opt-upi" class="border rounded-lg p-3 bg-gray-50 space-y-1 hidden">
+  <p class="text-sm"><strong>UPI ID:</strong> <code>akashkushwaha14385@okhdfcbank</code></p>
+  <p class="text-xs text-gray-600">UPI app se pay karke neeche UTR / Transaction ID daalein.</p>
+</div>
+
+<div id="opt-bank" class="border rounded-lg p-3 bg-gray-50 space-y-1 hidden">
+  <p class="text-sm font-medium">Bank Transfer / Other Method</p>
+  <p class="text-xs text-gray-600">Transfer ke baad neeche reference / UTR daal kar submit karein; admin review karega.</p>
+
+<script>
+function togglePayOption() {
+  const val = document.querySelector('input[name="method"]:checked').value;
+  document.getElementById('opt-qr').classList.toggle('hidden', val !== 'qr_auto');
+  document.getElementById('opt-upi').classList.toggle('hidden', val !== 'upi');
+  document.getElementById('opt-bank').classList.toggle('hidden', val !== 'bank_transfer');
+}
+</script>
+
+    </div>
+  </div>
+
+  div>
+    <div class="bg-white border border-gray-100 rounded-xl">
       <div class="px-5 py-3 border-b border-gray-100 font-semibold text-sm">Your top-up requests</div>
       <% if (fundRequests.length === 0) { %>
         <p class="p-5 text-sm text-gray-500">No top-up requests yet.</p>
@@ -42,12 +71,42 @@
                 <td class="px-5 py-3"><%= site.currency %><%= f.amount.toFixed(2) %></td>
                 <td class="px-5 py-3 text-gray-500 capitalize"><%= f.method.replace('_',' ') %></td>
                 <td class="px-5 py-3">
-                  <span class="px-2 py-0.5 rounded-full text-xs font-semibold
-                    <%= f.status === 'approved' ? 'bg-green-100 text-green-700' :
-                        f.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700' %>">
+                  <span class="px-2 py-0.5 rounded-full text-xs font-semibold <%= f.status === 'approved' ? 'bg-green-100 text-green-700' : f.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800' %>">
                     <%= f.status %>
                   </span>
+                  </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+
+    <div class="bg-white border border-gray-100 rounded-xl mt-6">
+      <div class="px-5 py-3 border-b border-gray-100 font-semibold text-sm">Transaction history</div>
+      <% if (transactions.length === 0) { %>
+        <p class="p-5 text-sm text-gray-500">No transactions yet.</p>
+      <% } else { %>
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 text-gray-500 text-left">
+            <tr>
+              <th class="px-5 py-2 font-semibold">Date</th>
+              <th class="px-5 py-2 font-semibold">Type</th>
+              <th class="px-5 py-2 font-semibold">Note</th>
+              <th class="px-5 py-2 font-semibold">Amount</th>
+              <th class="px-5 py-2 font-semibold">Balance</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% transactions.forEach(function(t) { %>
+              <tr>
+                <td class="px-5 py-3 text-gray-500 whitespace-nowrap"><%= t.created_at %></td>
+                <td class="px-5 py-3 capitalize"><%= t.type %></td>
+                <td class="px-5 py-3 text-gray-500"><%= t.note %></td>
+                <td class="px-5 py-3 font-semibold <%= t.amount >= 0 ? 'text-green-600' : 'text-red-600' %>">
+                  <%= t.amount >= 0 ? '+' : '' %><%= site.currency %><%= t.amount.toFixed(2) %>
                 </td>
+                <td class="px-5 py-3"><%= site.currency %><%= t.balance_after.toFixed(2) %></td>
               </tr>
             <% }); %>
           </tbody>
@@ -55,32 +114,7 @@
       <% } %>
     </div>
   </div>
-
-  <div class="bg-white border border-gray-100 rounded-xl mt-6">
-    <div class="px-5 py-3 border-b border-gray-100 font-semibold text-sm">Transaction history</div>
-    <% if (transactions.length === 0) { %>
-      <p class="p-5 text-sm text-gray-500">No transactions yet.</p>
-    <% } else { %>
-      <table class="w-full text-sm">
-        <thead class="bg-gray-50 text-gray-500 text-left">
-          <tr><th class="px-5 py-2 font-semibold">Date</th><th class="px-5 py-2 font-semibold">Type</th><th class="px-5 py-2 font-semibold">Note</th><th class="px-5 py-2 font-semibold">Amount</th><th class="px-5 py-2 font-semibold">Balance after</th></tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <% transactions.forEach(function(t) { %>
-            <tr>
-              <td class="px-5 py-3 text-gray-500 whitespace-nowrap"><%= t.created_at %></td>
-              <td class="px-5 py-3 capitalize"><%= t.type %></td>
-              <td class="px-5 py-3 text-gray-500"><%= t.note %></td>
-              <td class="px-5 py-3 font-semibold <%= t.amount >= 0 ? 'text-green-600' : 'text-gray-700' %>">
-                <%= t.amount >= 0 ? '+' : '' %><%= site.currency %><%= t.amount.toFixed(2) %>
-              </td>
-              <td class="px-5 py-3"><%= site.currency %><%= t.balance_after.toFixed(2) %></td>
-            </tr>
-          <% }); %>
-        </tbody>
-      </table>
-    <% } %>
-  </div>
+</div>
 
 <%- include('../partials/dashboard_shell_close') %>
 <%- include('../partials/footer') %>
