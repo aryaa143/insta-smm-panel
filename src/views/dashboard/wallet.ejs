@@ -45,7 +45,14 @@
 <div id="opt-bank" class="border rounded-lg p-3 bg-gray-50 space-y-1 hidden">
   <p class="text-sm font-medium">Bank Transfer / Other Method</p>
   <p class="text-xs text-gray-600">Transfer ke baad neeche reference / UTR daal kar submit karein; admin review karega.</p>
+<div>
+  <label class="block text-sm font-medium mb-1">Payment reference / UTR</label>
+  <input name="reference" placeholder="UTR / Transaction ID" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+</div>
 
+<button type="submit" id="pay-submit-btn" class="w-full py-2.5 rounded-lg brand-gradient text-white font-semibold hover:opacity-95">
+  Submit / Pay Now
+</button>
 <script>
 function togglePayOption() {
   const val = document.querySelector('input[name="method"]:checked').value;
@@ -58,7 +65,6 @@ function togglePayOption() {
     </div>
   </div>
 
-  div>
     <div class="bg-white border border-gray-100 rounded-xl">
       <div class="px-5 py-3 border-b border-gray-100 font-semibold text-sm">Your top-up requests</div>
       <% if (fundRequests.length === 0) { %>
