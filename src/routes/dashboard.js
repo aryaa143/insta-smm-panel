@@ -205,7 +205,39 @@ router.post('/wallet/fund-request', async (req, res) => {
     return res.redirect('/dashboard/wallet');
   }
 
-  await fundRequestsModel.create({
+  if (method === 'qr_auto') {
+    // Yahan payment gateway / webhook verification check lagana hoga
+    // Jab verifiedPayment === true ho, tabhi neeche wala balance credit chalega:
+    const paymentVerified = false;
+
+    if (paymentVerified) {
+      await usersModel.adjustBalance(
+        req.session.userId,
+        amount,
+        'deposit',
+        `Auto QR top-up${reference ? ` (${reference})` : ''}`
+      );
+      req.session.flash = {
+        type: 'success',
+        message: 'Payment verified! Wallet balance credited automatically.',
+      };
+      return res.redirect('/dashboard/wallet');
+    }
+
+    await fundRequestsModel.create({
+      userId: req.session.userId,
+      amount,
+      method,
+      reference,
+    });
+    req.session.flash = {
+      type: 'info',
+      message: 'QR request logged. Once payment/webhook is confirmed, balance will be credited.',
+    };
+    return res.redirect('/dashboard/wallet');
+  }
+
+await fundRequestsModel.create({
     userId: req.session.userId,
     amount,
     method,

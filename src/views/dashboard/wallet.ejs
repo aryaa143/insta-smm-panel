@@ -17,25 +17,19 @@
             class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Payment method</label>
-          <select name="method" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-            <option value="bank_transfer">Bank transfer</option>
-            <option value="upi">UPI</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Payment reference / UTR (optional)</label>
-          <input name="reference" placeholder="So we can match your payment faster"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500" />
-        </div>
-        <button class="w-full py-2.5 rounded-lg brand-gradient text-white font-semibold hover:opacity-90">Submit top-up request</button>
-        <div class="text-center my-3">
-  <p class="mb-2 text-sm font-medium">Scan the QR code below to pay</p>
-  <img src="/img/qr.png" alt="UPI QR Code" style="max-width: 180px; height: auto;" class="mb-2 img-thumbnail mx-auto" />
-  <p class="mb-1 text-sm"><strong>UPI ID:</strong> <code>akashkushwaha14385@okhdfcbank</code></p>
-  <small class="text-muted">Payment karne ke baad UTR / Transaction ID daal kar Submit karein.</small>
-</div>
+  <label class="block text-sm font-medium mb-2">Choose payment option</label>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+    <label class="border rounded-lg p-2.5 text-xs cursor-pointer flex items-center gap-2">
+      <input type="radio" name="method" value="qr_auto" checked onchange="togglePayOption()">
+      <span><strong>1. QR Scan</strong><br><span class="text-gray-500">Auto credit</span></span>
+    </label>
+    <label class="border rounded-lg p-2.5 text-xs cursor-pointer flex items-center gap-2">
+      <input type="radio" name="method" value="upi" onchange="togglePayOption()">
+      <span><strong>2. UPI + UTR</strong><br><span class="text-gray-500">Fast match</span></span>
+    </label>
+    <label class="border rounded-lg p-2.5 text-xs cursor-pointer flex items-center gap-2">
+      <input type="radio" name="method" value="bank_transfer" onchange="togglePayOption()">
+      <span><strong>3. Bank / Other</strong><br><span class="text-gray-500">Manual check</span></spa
     <div class="bg-white border border-gray-100 rounded-xl">
       <div class="px-5 py-3 border-b border-gray-100 font-semibold text-sm">Your top-up requests</div>
       <% if (fundRequests.length === 0) { %>
