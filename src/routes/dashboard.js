@@ -51,6 +51,9 @@ router.get('/order/new', async (req, res) => {
 
 router.post('/order/new', async (req, res) => {
   const serviceId = parseInt(req.body.service_id, 10);
+  if (!Number.isInteger(serviceId) || serviceId <= 0) {
+  return renderError('Please select a service first.');
+}
   const link = (req.body.link || '').trim();
   const quantity = parseInt(req.body.quantity, 10);
 
