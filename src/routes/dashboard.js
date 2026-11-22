@@ -84,7 +84,9 @@ router.post('/order/new', async (req, res) => {
     );
   }
 
-  const charge = calcCharge(service, quantity);
+  const charge = calcCharge(service, quantity);if (!charge || charge <= 0) {
+  return renderError('Order charge is too low for this quantity.');
+  } 
   const user = await usersModel.findById(req.session.userId);
   if (!user || user.wallet_balance < charge) {
     return renderError(
@@ -121,6 +123,9 @@ router.post('/order/new', async (req, res) => {
         link,
         quantity,
       });
+      if (!providerOrderId) {
+  throw new Error('Provider did not return an order ID.');
+}
       await ordersModel.setProviderOrderId(order.id, providerOrderId, 'processing');
     } catch (err) {
       await usersModel.adjustBalance(
